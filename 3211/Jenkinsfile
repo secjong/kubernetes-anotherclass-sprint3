@@ -57,7 +57,17 @@ pipeline {
             steps {
                 // DockerHub로 이미지 업로드
                 script{
+                    withCredentials([usernamePassword(credentialsId: 'docker_username_password', passwordVariable: 'PASSWORD', usernameVariable: 'USERNAME')]) {
+                        sh "echo " + '${PASSWORD}' + " | docker login -u " + '${USERNAME}' + " --password-stdin"
+                    }
                     sh "docker push ${DOCKERHUB_USERNAME}/api-tester:${APP_VERSION}"
+                }
+            }
+
+            post {
+                always {
+                    // 도커 로그아웃
+                    sh "docker logout"
                 }
             }
         }
